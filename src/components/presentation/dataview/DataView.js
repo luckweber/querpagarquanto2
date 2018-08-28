@@ -7,6 +7,7 @@ import {Button} from "primereact/button";
 import {Dropdown} from "primereact/dropdown";
 import axios from 'axios';
 
+var moment = require('moment');
 
 export default  class DataViewDemo extends Component {
 
@@ -14,22 +15,34 @@ export default  class DataViewDemo extends Component {
         super();
         this.state = {
             cars: [],
+            data:[],
             layout: 'list',
             selectedCar: null,
             visible: false,
             sortKey: null,
             sortOrder: null
         };
-        //this.carservice = new CarService();
-        this.itemTemplate = this.itemTemplate.bind(this);
         this.onSortChange = this.onSortChange.bind(this);
+        this.itemTemplate2 = this.itemTemplate2.bind(this)
     }
 
     componentDidMount() {
         //this.carservice.getCarsLarge().then(data => this.setState({cars: data}));
 
-        axios.get('https://www.primefaces.org/primereact/showcase/resources/demo/data/cars-large.json')
-                .then(res => {this.setState({ cars: res.data.data})});
+        const options = {
+          method: 'get',
+          headers: {
+            'X-VTEX-API-AppKey': 'bruno.malater@agencian1.com.br',
+            'X-VTEX-API-AppToken': 'Wollverine7'
+         },
+          url: 'https://agencian1.vtexcommercestable.com.br/api/dataentities/CL/search?_fields=firstName,email,wishlistV2,createdIn',
+        };
+        axios(options).then((res) => {this.setState({ data: res.data})});
+
+        //axios.get('https:/primefaces.org/primereact/showcase/resources/demo/data/cars-large.json').then((res) => {this.setState({ cars: res.data.data}), console.log( res.data.data);})
+        //this.setState({cars: cars.data})
+
+      //fetch('https:/primefaces.org/primereact/showcase/resources/demo/data/cars-large.json').then((res) => { this.setState({ cars: res.data.data})})
     }
 
     onSortChange(event) {
@@ -51,35 +64,36 @@ export default  class DataViewDemo extends Component {
         }
     }
 
-    renderListItem(car) {
+    renderListItem(data) {
         return (
             <div className="p-g-12" style={{padding: '2em', borderBottom: '1px solid #d9d9d9'}}>
                 <div className="p-g-12 p-md-3">
-                    <img src={`https://www.primefaces.org/primereact/showcase/resources/demo/images/car/${car.brand}.png`} alt={car.brand}/>
+                    <img  src={`https://cdn2.iconfinder.com/data/icons/ios-7-icons/50/user_male2-128.png`} alt={data.email}/>
                 </div>
                 <div className="p-g-12 p-md-8 car-details">
                     <div className="p-g">
-                        <div className="p-g-2 p-sm-6">Vin:</div>
-                        <div className="p-g-10 p-sm-6">{car.vin}</div>
+                        <div className="p-g-2 p-sm-6">Nome:</div>
+                        <div className="p-g-10 p-sm-6">{data.firstName}</div>
 
-                        <div className="p-g-2 p-sm-6">Year:</div>
-                        <div className="p-g-10 p-sm-6">{car.year}</div>
+                        <div className="p-g-2 p-sm-6">Email:</div>
+                        <div className="p-g-10 p-sm-6">{data.email}</div>
 
-                        <div className="p-g-2 p-sm-6">Brand:</div>
-                        <div className="p-g-10 p-sm-6">{car.brand}</div>
 
-                        <div className="p-g-2 p-sm-6">Color:</div>
-                        <div className="p-g-10 p-sm-6">{car.color}</div>
+                        <div className="p-g-2 p-sm-6">Lista:</div>
+                        <div className="p-g-10 p-sm-6">{JSON.stringify(data.wishlistV2)}</div>
+
+                        <div className="p-g-2 p-sm-6">Data:</div>
+                        <div className="p-g-10 p-sm-6">{moment(data.createdIn).format("DD/MM/YYYY").toString()}</div>
                     </div>
                 </div>
 
                 <div className="p-g-8 p-md-1 search-icon" style={{marginTop:'40px'}}>
-                    <Button icon="pi pi-search" onClick={(e) => this.setState({ selectedCar: car, visible: true })}></Button>
+                    <Button icon="pi pi-search" onClick={(e) => this.setState({ selectedCar: data, visible: true })}></Button>
                 </div>
 
                 <div className="p-g " style={{marginTop:'40px', marginRight:'40px'}}>
                   <div className="p-g-8">
-                    <Button className="p-button-danger" icon="pi pi-trash" onClick={(e) => this.setState({ selectedCar: car, visible: true })}></Button>
+                    <Button className="p-button-danger" icon="pi pi-trash" onClick={(e) => this.setState({ selectedCar: data, visible: true })}></Button>
                   </div>
                 </div>
             </div>
@@ -87,14 +101,14 @@ export default  class DataViewDemo extends Component {
         );
     }
 
-    renderGridItem(car) {
+    renderGridItem(data) {
         return (
             <div style={{ padding: '.5em' }} className="p-g-12 p-md-3">
-                <Panel header={car.vin} style={{ textAlign: 'center' }}>
-                    <img src={`https://www.primefaces.org/primereact/showcase/resources/demo/images/car/${car.brand}.png`} alt={car.brand} />
-                    <div className="car-detail">{car.year} - {car.color}</div>
+                <Panel header={'car.vin'} style={{ textAlign: 'center' }}>
+                {/*<img src={`https://www.primefaces.org/primereact/showcase/resources/demo/images/car/${car.brand}.png`} alt={car.brand}/>*/}
+                    <div className="car-detail">{'car.year'} - {'car.color'}</div>
                     <hr className="ui-widget-content" style={{ borderTop: 0 }} />
-                    <Button icon="pi pi-search" onClick={(e) => this.setState({ selectedCar: car, visible: true })}></Button>
+                    <Button icon="pi pi-search" onClick={(e) => this.setState({ selectedCar: data, visible: true })}></Button>
                 </Panel>
 
 
@@ -102,36 +116,26 @@ export default  class DataViewDemo extends Component {
         );
     }
 
-    itemTemplate(car, layout) {
-        if (!car) {
-            return;
-        }
-
-        if (layout === 'list')
-            return this.renderListItem(car);
-        else if (layout === 'grid')
-            return this.renderGridItem(car);
-    }
 
     renderCarDialogContent() {
         if (this.state.selectedCar) {
             return (
                 <div className="p-g" style={{fontSize: '16px', textAlign: 'center', padding: '20px'}}>
-                    <div className="p-g-12" style={{textAlign: 'center'}}>
-                        <img src={`https://www.primefaces.org/primereact/showcase/resources/demo/images/car/${this.state.selectedCar.brand}.png`} alt={this.state.selectedCar.brand} />
+                    <div className="p-g-12" style={{textAlign: 'center'}}>1
+                        {/*<img src={`https://www.primefaces.org/primereact/showcase/resources/demo/images/car/${this.state.selectedCar.brand}.png`} alt={this.state.selectedCar.brand} />*/}
                     </div>
 
                     <div className="p-g-4">Vin: </div>
-                    <div className="p-g-8">{this.state.selectedCar.vin}</div>
+                    <div className="p-g-8">{this.state.selectedCar.firstName}</div>
 
                     <div className="p-g-4">Year: </div>
-                    <div className="p-g-8">{this.state.selectedCar.year}</div>
+                    <div className="p-g-8">{'this.state.selectedCar.year'}</div>
 
                     <div className="p-g-4">Brand: </div>
-                    <div className="p-g-8">{this.state.selectedCar.brand}</div>
+                    <div className="p-g-8">{'this.state.selectedCar.brand'}</div>
 
                     <div className="p-g-4">Color: </div>
-                    <div className="p-g-8">{this.state.selectedCar.color}</div>
+                    <div className="p-g-8">{'this.state.selectedCar.color'}</div>
                 </div>
             );
         }
@@ -140,11 +144,14 @@ export default  class DataViewDemo extends Component {
         }
     }
 
+
+
+
     renderHeader() {
         const sortOptions = [
-            {label: 'Mais Antigo', value: '!year'},
-            {label: 'Mais Recente', value: 'year'},
-            {label: 'Nome', value: 'brand'}
+            {label: 'Mais Antigo', value: '!createdIn'},
+            {label: 'Mais Recente', value: 'createdIn'},
+            {label: 'Nome', value: 'firstName'}
         ];
 
         return (
@@ -153,35 +160,29 @@ export default  class DataViewDemo extends Component {
                     <Dropdown options={sortOptions} value={this.state.sortKey} placeholder="Filtar pelo:" onChange={this.onSortChange} />
                 </div>
                 <div className="p-g-6" style={{textAlign: 'right'}}>
-                    <DataViewLayoutOptions layout={this.state.layout} onChange={(e) => this.setState({layout: e.value})} />
+                    <DataViewLayoutOptions layout={'this.state.layout'} onChange={(e) => this.setState({layout: e.value})} />
                 </div>
             </div>
         );
     }
 
+    itemTemplate2(data, layout) {
+      if (layout === 'list')
+          return this.renderListItem(data);
+      else if (layout === 'grid')
+          return this.renderGridItem(data);
+  }
+
     render() {
-        const header = this.renderHeader();
+        //const header = this.renderHeader();
 
         return (
             <div>
-                <div className="content-section introduction">
-                    <div className="feature-intro">
-                        <h1>Listas de Produtos</h1>
-                        <p>Abaixo  lista de produtos:</p>
-                    </div>
-                </div>
-
-                <div className="content-section implementation">
-                    <DataView value={this.state.cars} layout={this.state.layout} header={header}
-                            itemTemplate={this.itemTemplate} paginatorPosition={'both'} paginator={true} rows={20}
-                            sortOrder={this.state.sortOrder} sortField={this.state.sortField} />
-
-                    <Dialog header="Car Details" visible={this.state.visible} width="225px" modal={true} onHide={() => this.setState({visible: false})}>
-                        {this.renderCarDialogContent()}
-                    </Dialog>
-                </div>
-
-            </div>
+            <DataView value={this.state.data} layout={this.state.layout} itemTemplate={this.itemTemplate2}></DataView>
+            <Dialog header="Lista de Produtos" visible={this.state.visible} width="400px" modal={true} onHide={() => this.setState({visible: false})}>
+                {this.renderCarDialogContent()}
+            </Dialog>
+          </div>
         );
     }
 }
