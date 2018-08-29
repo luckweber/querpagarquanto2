@@ -20,6 +20,7 @@ export default  class DataViewDemo extends Component {
         this.state = {
             cars: [],
             data:[],
+            dataNew:[],
             layout: 'list',
             selectedCar: null,
             visible: false,
@@ -42,7 +43,7 @@ export default  class DataViewDemo extends Component {
          },
           url: 'https://agencian1.vtexcommercestable.com.br/api/dataentities/CL/search?_fields=firstName,email,wishlistV2,createdIn',
         };
-        axios(options).then((res) => {this.setState({ data: res.data})});
+        axios(options).then((res) => {this.setState({ data: res.data, dataNew: res.data})});
     }
 
     onSortChange(event) {
@@ -135,8 +136,7 @@ export default  class DataViewDemo extends Component {
 
 
     handleFilter(e) {
-      this.setState({selectedFilter: e.value})
-      console.log(e);
+      this.setState({selectedFilter: e.value});
     }
 
 
