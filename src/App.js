@@ -4,6 +4,7 @@ import { Switch, BrowserRouter as Router, Route } from 'react-router-dom';
 
 
 import Painel from './Painel'
+import UserPainel from './UserPainel'
 
 import 'primereact/resources/themes/nova-dark/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -20,6 +21,7 @@ class App extends Component {
         <div>
           <Switch>
             <Route exact path="/" component={Painel} />
+            <Route exact path="/userPanel" component={UserPainel} />
           </Switch>
         </div>
       </Router>
