@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import Header from './components/containers/header/Header';
-import DataViewDemo from './components/presentation/dataview/DataView'
+import DataViewDemo2 from './components/presentation/dataview/DataView2'
 
 
 class UserPainel extends Component {
@@ -9,7 +9,7 @@ class UserPainel extends Component {
     return (
       <div>
         <Header />
-        <DataViewDemo />
+        <DataViewDemo2 />
       </div>
     );
   }

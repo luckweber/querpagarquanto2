@@ -21,7 +21,7 @@ class App extends Component {
         <div>
           <Switch>
             <Route exact path="/" component={Painel} />
-            <Route exact path="/userpanel" component={UserPainel} />
+            <Route exact path="/userpanel/:rental_id" component={UserPainel} />
           </Switch>
         </div>
       </Router>

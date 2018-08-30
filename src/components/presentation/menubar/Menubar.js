@@ -13,7 +13,7 @@ export default class MenubarDemo extends Component {
                 {
                   label:'Home',
                   icon:'pi pi-fw pi-home',
-                  url:'/ff'
+                  url:'/'
                 },
                 {
                    label:'Usuários',

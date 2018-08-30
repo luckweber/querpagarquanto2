@@ -11,10 +11,9 @@ import OrderListDemo from './../orderlist/OrderList'
 import {InputText} from "primereact/inputtext";
 import { withRouter } from 'react-router-dom';
 
-
 var moment = require('moment');
 
-class DataViewDemo extends Component {
+class DataViewDemo2 extends Component {
 
     constructor() {
         super();
@@ -37,7 +36,9 @@ class DataViewDemo extends Component {
     //https://developers.google.com/identity/protocols/OAuth2UserAgent#redirecting
     //https://help.vtex.com/en/tutorial/registering-a-client-id-and-a-client-secret-for-login-with-google
 
-    componentDidMount() {
+    async componentDidMount() {
+
+      const {match:{params:{rental_id}}} = this.props;
 
         const options = {
           method: 'get',
@@ -47,8 +48,67 @@ class DataViewDemo extends Component {
          },
           url: 'https://agencian1.vtexcommercestable.com.br/api/dataentities/CL/search?_fields=firstName,email,wishlistV2,createdIn,id',
         };
-        axios(options).then((res) => {this.setState({ data: res.data, dataNew: res.data})});
+
+        const options2 = {
+          method: 'get',
+          headers: {
+            'X-VTEX-API-AppKey': 'bruno.malater@agencian1.com.br',
+            'X-VTEX-API-AppToken': 'Wollverine7'
+         },
+          url: `https://agencian1.vtexcommercestable.com.br/api/dataentities/CL/documents/${rental_id}?_fields=firstName,email,wishlistV2,createdIn,id`,
+        };
+
+
+        //axios(options).then((res) => {this.setState({ data: res.data, dataNew: res.data})});
+
+
+        try {
+          //let data  = await axios(options2);
+          //const {wishlistV2} = data.data;
+
+          const numbers = [54,3,2004233,2012579,2011114, 2002093, 2000830, 2009201  ]
+          this.setState({data: await Promise.all(this.getProducts(numbers))})
+
+        } catch (e) {
+          console.log(e);
+        }
+
     }
+
+    createArrays(listas) {
+
+      return this.uniqueArray(listas);
+    }
+
+    uniqueArray(a) {
+      return a.filter(function(item, pos) {
+        return a.indexOf(item) == pos;
+      })
+    }
+
+
+    getProducts = (listas) => this.createArrays(listas).map(async (ids) => {
+      const myHeaders = new Headers();
+      const conf = {
+        method: 'GET',
+        mode: 'cors',
+        headers: myHeaders,
+      }
+
+      let  response = await fetch(`https://lebes.vtexcommercestable.com.br/api/catalog_system/pub/products/search/?fq=productId:${ids}`, conf);
+      let json = await response.json();
+
+      console.log(json[0]);
+
+      let product = {
+        img: json[0].items[0].images[0].imageUrl,
+        name: json[0].productName,
+        Price: json[0].items[0].sellers[0].commertialOffer.Price,
+        PriceWithoutDiscount: json[0].items[0].sellers[0].commertialOffer.PriceWithoutDiscount
+      }
+
+      return product;
+    })
 
     onSortChange(event) {
         const value = event.value;
@@ -69,24 +129,22 @@ class DataViewDemo extends Component {
         }
     }
 
-    pushLocation(id) {
-      const { history} = this.props;
-      history.push(`/userpanel/${id}`)
-    }
-
     renderListItem(data) {
         return (
             <div className="p-g-12" style={{padding: '2em', borderBottom: '1px solid #d9d9d9'}}>
                 <div className="p-g-12 p-md-3">
-                    <img  src={`https://cdn2.iconfinder.com/data/icons/ios-7-icons/50/user_male2-128.png`} alt={data.firstName}/>
+                    <img  width={300} src={data.img} alt={data.name}/>
                 </div>
                 <div className="p-g-12 p-md-8 car-details">
                     <div className="p-g">
                         <div className="p-g-2 p-sm-6">Nome:</div>
-                        <div className="p-g-10 p-sm-6">{data.firstName}</div>
+                        <div style={{fontWeight:'bold'}} className="p-g-10 p-sm-6">{data.name}</div>
 
-                        <div className="p-g-2 p-sm-6">Email:</div>
-                        <div className="p-g-10 p-sm-6">{data.email}</div>
+                        <div className="p-g-2 p-sm-6">Valor c/ Desconto:</div>
+                        <div style={{color:'green', fontWeight:'bold'}} className="p-g-10 p-sm-6">R$  {data.Price}</div>
+
+                        <div className="p-g-2 p-sm-6">Valor s/ Desconto:</div>
+                        <div style={{color:'red', fontWeight:'bold'}} className="p-g-10 p-sm-6">R$ {data.PriceWithoutDiscount}</div>
 
 
                         {/*<div className="p-g-2 p-sm-6">Lista:</div>*/}
@@ -98,8 +156,7 @@ class DataViewDemo extends Component {
                 </div>
 
                 <div className="p-g-8 p-md-1 search-icon" style={{marginTop:'40px'}}>
-                    {/*<Button icon="pi pi-search" onClick={(e) => this.setState({ selectedCar: data, visible: true })}></Button>*/}
-                    <Button className="p-button-success" icon="pi pi-arrow-circle-right" onClick={(e) => this.pushLocation(data.id)}></Button>
+                    <Button className="p-button-danger" icon="pi pi-trash" onClick={(e) => this.setState({ selectedCar: data, visible: true })}></Button>
                 </div>
 
                 {/*<div className="p-g " style={{marginTop:'40px', marginRight:'40px'}}>
@@ -115,12 +172,11 @@ class DataViewDemo extends Component {
     renderGridItem(data) {
         return (
             <div style={{ padding: '.5em' }} className="p-g-12 p-md-3">
-                <Panel header={data.firstName} style={{ textAlign: 'center' }}>
-                <img  src={`https://cdn2.iconfinder.com/data/icons/ios-7-icons/50/user_male2-64.png`} alt={data.firstName}/>
-                    <div className="car-detail">{data.email} - {moment(data.createdIn).format("DD/MM/YYYY").toString()}</div>
+                <Panel header={data.name} style={{ textAlign: 'center' }}>
+                    <img  width={300} src={data.img} alt={data.name}/>
+                    <div style={{fontWeight:'bold'}} className="car-detail">De: {data.Price} Por: {data.PriceWithoutDiscount}</div>
                     <hr className="ui-widget-content" style={{ borderTop: 0 }} />
-                    {/*<Button icon="pi pi-search" onClick={(e) => this.setState({ selectedCar: data, visible: true })}></Button>*/}
-                    <Button className="p-button-success" icon="pi pi-arrow-circle-right" onClick={(e) => this.pushLocation(data.id)}></Button>
+                    <Button className="p-button-danger" icon="pi pi-trash" onClick={(e) => this.setState({ selectedCar: data, visible: true })}></Button>
                 </Panel>
 
             </div>
@@ -157,7 +213,7 @@ class DataViewDemo extends Component {
         const sortOptions = [
             {label: 'Mais Antigo', value: '!createdIn'},
             {label: 'Mais Recente', value: 'createdIn'},
-            {label: 'Nome', value: 'firstName'}
+            {label: 'Nome', value: 'name'}
         ];
 
         return (
@@ -200,4 +256,4 @@ class DataViewDemo extends Component {
     }
 }
 
-export default withRouter(DataViewDemo);
+export default withRouter(DataViewDemo2);
